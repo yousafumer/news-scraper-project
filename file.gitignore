@@ -1,0 +1,4 @@
+*.bat
+error_log.txt
+__pycache__/
+*.pyc
