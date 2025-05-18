@@ -4,22 +4,25 @@ from bs4 import BeautifulSoup
 import os
 import hashlib
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone  # Add timezone
 
+output_file = "all_articles.json"
 
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 CUTOFF_DAYS = 4
-output_file = "all_articles.json"
 
 def get_valid_date(date_str):
-    """Parse date with fallback to current datetime"""
+    """Parse date with UTC fallback"""
     try:
-        return datetime.strptime(date_str, DATE_FORMAT)
+        # Parse date as UTC
+        parsed_date = datetime.strptime(date_str, DATE_FORMAT).replace(tzinfo=timezone.utc)
+        return parsed_date
     except (ValueError, TypeError):
-        return datetime.now()
+        # Default to UTC now (not local time)
+        return datetime.now(timezone.utc)
 
 def clean_existing_articles():
-    """Load and filter existing articles"""
+    """Load and filter existing articles with UTC cutoff"""
     existing_articles = []
     existing_guids = set()
     
@@ -27,21 +30,23 @@ def clean_existing_articles():
         try:
             with open(output_file, "r", encoding="utf-8") as f:
                 existing_articles = json.load(f)
-                
-            cutoff = datetime.now() - timedelta(days=CUTOFF_DAYS)
+            
+            # Use UTC for cutoff
+            cutoff = datetime.now(timezone.utc) - timedelta(days=CUTOFF_DAYS)
             filtered = []
             
             for article in existing_articles:
                 try:
                     article_date = get_valid_date(article.get('published_date'))
-                    if article_date > cutoff:
+                    if article_date > cutoff:  # Compare UTC-aware datetimes
                         filtered.append(article)
                 except Exception as e:
-                    print(f"⚠️ Error processing existing article: {str(e)}")
+                    print(f"⚠️ Error processing article {article['guid']}: {str(e)}")
+                    continue  # Skip invalid articles
                     
             existing_articles = filtered
             existing_guids = {a['guid'] for a in existing_articles}
-            print(f"📂 Loaded {len(existing_articles)} recent articles")
+            print(f"📂 Loaded {len(existing_articles)} recent articles (cutoff: {cutoff})")
             
         except Exception as e:
             print(f"🚨 Error loading {output_file}: {str(e)}")
