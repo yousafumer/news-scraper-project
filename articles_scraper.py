@@ -6,7 +6,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 
-# Constants
+
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 CUTOFF_DAYS = 4
 output_file = "all_articles.json"
@@ -51,7 +51,7 @@ def clean_existing_articles():
 existing_articles, existing_guids = clean_existing_articles()
 all_articles = []
 
-# BBC Urdu Scraper 
+
 def scrape_bbc():
     print("\n📢 Scraping BBC Urdu...")
     feed = feedparser.parse("https://feeds.bbci.co.uk/urdu/rss.xml")
@@ -63,10 +63,10 @@ def scrape_bbc():
             continue
             
         try:
-            # Date handling
+      
             pub_date = get_valid_date(entry.get('published')).strftime(DATE_FORMAT)
             
-            # Scraping logic
+   
             res = requests.get(entry.link, headers={"User-Agent": "Mozilla/5.0"})
             soup = BeautifulSoup(res.text, "html.parser")
             body = "\n".join([p.get_text() for p in soup.find_all("p", class_="bbc-1gjryo4 e17g058b0")])
@@ -86,7 +86,7 @@ def scrape_bbc():
         except Exception as e:
             print(f"⚠️ BBC Error: {str(e)}")
 
-# ARY Urdu Scraper 
+
 def scrape_ary():
     print("\n📢 Scraping ARY Urdu...")
     feed = feedparser.parse("https://urdu.arynews.tv/feed/")
@@ -121,7 +121,7 @@ def scrape_ary():
         except Exception as e:
             print(f"⚠️ ARY Error: {str(e)}")
 
-# Express Urdu Scraper 
+
 def scrape_express():
     print("\n📢 Scraping Express Urdu...")
     feed = feedparser.parse("https://www.express.pk/feed/")
@@ -154,7 +154,7 @@ def scrape_express():
         except Exception as e:
             print(f"⚠️ Express Error: {str(e)}")
 
-# Main execution
+
 if __name__ == "__main__":
     scrape_bbc()
     scrape_ary()
