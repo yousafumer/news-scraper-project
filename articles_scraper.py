@@ -4,21 +4,21 @@ from bs4 import BeautifulSoup
 import os
 import hashlib
 import json
-from datetime import datetime, timedelta, timezone  # Add timezone
+from datetime import datetime, timedelta, timezone  
 
 output_file = "all_articles.json"
 
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
-CUTOFF_DAYS = 4
+CUTOFF_DAYS = 15
 
 def get_valid_date(date_str):
     """Parse date with UTC fallback"""
     try:
-        # Parse date as UTC
+      
         parsed_date = datetime.strptime(date_str, DATE_FORMAT).replace(tzinfo=timezone.utc)
         return parsed_date
     except (ValueError, TypeError):
-        # Default to UTC now (not local time)
+
         return datetime.now(timezone.utc)
 
 def clean_existing_articles():
@@ -31,18 +31,18 @@ def clean_existing_articles():
             with open(output_file, "r", encoding="utf-8") as f:
                 existing_articles = json.load(f)
             
-            # Use UTC for cutoff
+
             cutoff = datetime.now(timezone.utc) - timedelta(days=CUTOFF_DAYS)
             filtered = []
             
             for article in existing_articles:
                 try:
                     article_date = get_valid_date(article.get('published_date'))
-                    if article_date > cutoff:  # Compare UTC-aware datetimes
+                    if article_date > cutoff:  
                         filtered.append(article)
                 except Exception as e:
                     print(f"⚠️ Error processing article {article['guid']}: {str(e)}")
-                    continue  # Skip invalid articles
+                    continue  
                     
             existing_articles = filtered
             existing_guids = {a['guid'] for a in existing_articles}
@@ -68,7 +68,7 @@ def scrape_bbc():
             continue
             
         try:
-            # Date handling
+            
             pub_date = get_valid_date(entry.get('published')).strftime(DATE_FORMAT)
    
             res = requests.get(entry.link, headers={"User-Agent": "Mozilla/5.0"})
