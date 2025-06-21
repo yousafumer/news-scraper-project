@@ -187,6 +187,7 @@ if __name__ == "__main__":
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(combined, f, ensure_ascii=False, indent=4)
             
+            
         print(f"\n✅ Success! Total articles: {len(combined)}")
         print(f"• Previously kept: {len(existing_articles)}")
         print(f"• Newly added: {len(all_articles)}")
