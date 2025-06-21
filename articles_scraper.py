@@ -41,7 +41,7 @@ def clean_existing_articles():
                     if article_date > cutoff:  
                         filtered.append(article)
                 except Exception as e:
-                    print(f"⚠️ Error processing article {article['guid']}: {str(e)}")
+                    print(f"⚠ Error processing article {article['guid']}: {str(e)}")
                     continue  
                     
             existing_articles = filtered
@@ -88,7 +88,7 @@ def scrape_bbc():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ BBC Error: {str(e)}")
+            print(f"⚠ BBC Error: {str(e)}")
 
 
 def scrape_ary():
@@ -123,7 +123,7 @@ def scrape_ary():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ ARY Error: {str(e)}")
+            print(f"⚠ ARY Error: {str(e)}")
 
 
 def scrape_express():
@@ -156,10 +156,10 @@ def scrape_express():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ Express Error: {str(e)}")
+            print(f"⚠ Express Error: {str(e)}")
 
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     scrape_bbc()
     scrape_ary()
     scrape_express()
@@ -173,4 +173,4 @@ if __name__ == "__main__":
         print(f"🧹 Auto-cleaned {len(existing_articles) + len(all_articles) - len(combined)} old entries")
         
     except Exception as e:
-        print(f"🚨 Critical save error: {str(e)}")
+        print(f"🚨 Critical save error: {str(e)}")
