@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 CUTOFF_DAYS = 4
 output_file = "all_articles.json"
-MAX_ARTICLES = 300  # Safety cap to prevent bloat
+MAX_ARTICLES = 300  
 
 def get_valid_date(date_str):
     """Parse date with UTC timezone"""
@@ -43,7 +43,7 @@ def clean_existing_articles():
                         removed_count += 1  
                 except Exception as e:
                     print(f"⚠️ Error processing article: {str(e)}")
-                    continue  # Keep problematic articles temporarily
+                    continue  
                     
             existing_articles = filtered
             existing_guids = {a['guid'] for a in existing_articles}
@@ -51,7 +51,7 @@ def clean_existing_articles():
             
         except Exception as e:
             print(f"🚨 Critical error loading JSON: {str(e)}")
-            # Attempt recovery
+     
             if os.path.exists(output_file):
                 os.rename(output_file, f"backup_{datetime.now().strftime('%Y%m%d')}.json")
             print("🆕 Starting fresh with empty dataset")
@@ -176,14 +176,13 @@ if __name__ == "__main__":
     try:
         combined = existing_articles + all_articles
         
-        # SORT ARTICLES NEWEST FIRST (critical fix)
         combined.sort(key=lambda a: get_valid_date(a['published_date']), reverse=True)
         
         if len(combined) > MAX_ARTICLES:
-            combined = combined[:MAX_ARTICLES]  # Keep newest 300
+            combined = combined[:MAX_ARTICLES]  
             print(f"⚠️ Truncated to {MAX_ARTICLES} newest articles")
         
-        # Now get actual oldest article
+    
         oldest_article = min(get_valid_date(a['published_date']) for a in combined)
         
         with open(output_file, "w", encoding="utf-8") as f:

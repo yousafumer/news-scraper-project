@@ -2,7 +2,7 @@ name: Scrape Articles
 
 on:
   schedule:
-    - cron: '0 3,15 * * *'  # Runs at 8AM & 8PM Pakistan Time (UTC+5)
+    - cron: '0 3,15 * * *'  
   workflow_dispatch:
 
 jobs:
@@ -11,26 +11,26 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # Step 1: Get code
+ 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Python
+    
       - name: Setup Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # Step 3: Install required packages
+    
       - name: Install dependencies
         run: |
           pip install feedparser beautifulsoup4 requests pandas
 
-      # Step 4: Run scraper
+     
       - name: Run Scraper
         run: python articles_scraper.py
 
-      # Step 5: Basic JSON check
+
       - name: Check JSON File
         run: |
           # Simple file checks
@@ -44,7 +44,7 @@ jobs:
             exit 1
           fi
 
-      # Step 6: Save results
+    
       - name: Save Articles
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
