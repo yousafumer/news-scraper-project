@@ -12,7 +12,7 @@ output_file = "all_articles.json"
 MAX_ARTICLES = 300  
 
 def get_valid_date(date_str):
-    """Parse date with UTC timezone"""
+
     try:
         parsed = datetime.strptime(date_str, DATE_FORMAT).replace(tzinfo=timezone.utc)
         return parsed
@@ -20,7 +20,7 @@ def get_valid_date(date_str):
         return datetime.now(timezone.utc)
 
 def clean_existing_articles():
-    """Load and filter existing articles with UTC cutoff"""
+    
     existing_articles = []
     existing_guids = set()
     removed_count = 0
@@ -47,10 +47,10 @@ def clean_existing_articles():
                     
             existing_articles = filtered
             existing_guids = {a['guid'] for a in existing_articles}
-            print(f"🧹 Removed {removed_count} old articles (kept {len(existing_articles)}/{original_count})")
+            print(f" Removed {removed_count} old articles (kept {len(existing_articles)}/{original_count})")
             
         except Exception as e:
-            print(f"🚨 Critical error loading JSON: {str(e)}")
+            print(f" Critical error loading JSON: {str(e)}")
      
             if os.path.exists(output_file):
                 os.rename(output_file, f"backup_{datetime.now().strftime('%Y%m%d')}.json")
@@ -62,7 +62,7 @@ all_articles = []
 
 
 def scrape_bbc():
-    print("\n📢 Scraping BBC Urdu...")
+    print("\n Scraping BBC Urdu...")
     feed = feedparser.parse("https://feeds.bbci.co.uk/urdu/rss.xml")
 
     for entry in feed.entries:
@@ -93,11 +93,11 @@ def scrape_bbc():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ BBC Error: {str(e)}")
+            print(f" BBC Error: {str(e)}")
 
 
 def scrape_ary():
-    print("\n📢 Scraping ARY Urdu...")
+    print("\n Scraping ARY Urdu...")
     feed = feedparser.parse("https://urdu.arynews.tv/feed/")
 
     for entry in feed.entries:
@@ -128,11 +128,11 @@ def scrape_ary():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ ARY Error: {str(e)}")
+            print(f" ARY Error: {str(e)}")
 
 
 def scrape_express():
-    print("\n📢 Scraping Express Urdu...")
+    print("\n Scraping Express Urdu...")
     feed = feedparser.parse("https://www.express.pk/feed/")
 
     for entry in feed.entries:
@@ -161,7 +161,7 @@ def scrape_express():
                 print(f"✅ Added: {entry.title[:30]}...")
                 
         except Exception as e:
-            print(f"⚠️ Express Error: {str(e)}")
+            print(f"Express Error: {str(e)}")
 
 
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         
         if len(combined) > MAX_ARTICLES:
             combined = combined[:MAX_ARTICLES]  
-            print(f"⚠️ Truncated to {MAX_ARTICLES} newest articles")
+            print(f" Truncated to {MAX_ARTICLES} newest articles")
         
     
         oldest_article = min(get_valid_date(a['published_date']) for a in combined)
@@ -194,4 +194,4 @@ if __name__ == "__main__":
         print(f"• Actual oldest article: {oldest_article.strftime(DATE_FORMAT)}")
         
     except Exception as e:
-        print(f"🔥 Critical save error: {str(e)}")
+        print(f" Critical save error: {str(e)}")
