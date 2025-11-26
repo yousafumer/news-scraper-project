@@ -61,6 +61,44 @@ existing_articles, existing_guids = clean_existing_articles()
 all_articles = []
 
 
+# def scrape_bbc():
+#     print("\n Scraping BBC Urdu...")
+#     feed = feedparser.parse("https://feeds.bbci.co.uk/urdu/rss.xml")
+
+#     for entry in feed.entries:
+#         guid = entry.id
+#         if guid in existing_guids:
+#             print(f"⏩ Skipping duplicate: {guid[:15]}...")
+#             continue
+            
+#         try:
+      
+#             pub_date = get_valid_date(entry.get('published')).strftime(DATE_FORMAT)
+            
+   
+#             res = requests.get(entry.link, headers={"User-Agent": "Mozilla/5.0"})
+#             soup = BeautifulSoup(res.text, "html.parser")
+#             body = "\n".join([p.get_text() for p in soup.find_all("p", class_="bbc-1gjryo4 e17g058b0")])
+            
+#             if body.strip():
+#                 all_articles.append({
+#                     "guid": guid,
+#                     "title": entry.title,
+#                     "link": entry.link,
+#                     "image_url": (soup.find("meta", property="og:image") or {}).get("content", ""),
+#                     "article": body.strip(),
+#                     "published_date": pub_date,
+#                     "source": "BBC Urdu"
+#                 })
+#                 print(f"✅ Added: {entry.title[:30]}...")
+                
+#         except Exception as e:
+#             print(f" BBC Error: {str(e)}")
+
+
+
+###############  2nd version
+
 def scrape_bbc():
     print("\n Scraping BBC Urdu...")
     feed = feedparser.parse("https://feeds.bbci.co.uk/urdu/rss.xml")
@@ -70,30 +108,39 @@ def scrape_bbc():
         if guid in existing_guids:
             print(f"⏩ Skipping duplicate: {guid[:15]}...")
             continue
-            
+
         try:
-      
             pub_date = get_valid_date(entry.get('published')).strftime(DATE_FORMAT)
-            
-   
             res = requests.get(entry.link, headers={"User-Agent": "Mozilla/5.0"})
             soup = BeautifulSoup(res.text, "html.parser")
-            body = "\n".join([p.get_text() for p in soup.find_all("p", class_="bbc-1gjryo4 e17g058b0")])
+
+            main_tag = soup.find("main", {"role": "main"})
+            article_text = ""
+            if main_tag:
             
-            if body.strip():
+                paragraphs = main_tag.find_all("p")
+                article_text = "\n".join(p.get_text() for p in paragraphs)
+
+            og_img = soup.find("meta", property="og:image")
+            image_url = og_img["content"] if og_img else ""
+
+            if article_text.strip():
                 all_articles.append({
                     "guid": guid,
                     "title": entry.title,
                     "link": entry.link,
-                    "image_url": (soup.find("meta", property="og:image") or {}).get("content", ""),
-                    "article": body.strip(),
+                    "image_url": image_url,
+                    "article": article_text.strip(),
                     "published_date": pub_date,
                     "source": "BBC Urdu"
                 })
-                print(f"✅ Added: {entry.title[:30]}...")
-                
+                print(f"✅ Added: {entry.title[:35]}...")
+            else:
+                print(f"⚠ BBC: No article text found — {entry.link}")
+
         except Exception as e:
             print(f" BBC Error: {str(e)}")
+
 
 
 def scrape_ary():
@@ -146,14 +193,33 @@ def scrape_express():
             
             res = requests.get(entry.link, headers={"User-Agent": "Mozilla/5.0"})
             soup = BeautifulSoup(res.content, "html.parser")
-            paragraphs = [p.get_text() for div in soup.find_all("span", class_="story-text") for p in div.find_all("p")]
+            paragraphs = [
+                p.get_text()
+                for div in soup.find_all("span", class_="story-text")
+                for p in div.find_all("p")
+            ]
             
+       
+            image_url = ""
+
+
+            express_div = soup.find("div", class_="featured-image-global")
+            if express_div:
+                img = express_div.find("img")
+                if img and img.get("src"):
+                    image_url = img["src"]
+
+            if not image_url:
+                img = soup.find("img")
+                if img and img.get("src"):
+                    image_url = img["src"]
+
             if paragraphs:
                 all_articles.append({
                     "guid": guid,
                     "title": entry.title,
                     "link": entry.link,
-                    "image_url": (soup.find("img") or {}).get("src", ""),
+                    "image_url": image_url,
                     "article": "\n".join(paragraphs).strip(),
                     "published_date": pub_date,
                     "source": "Express Urdu"
@@ -162,6 +228,7 @@ def scrape_express():
                 
         except Exception as e:
             print(f"Express Error: {str(e)}")
+
 
 
 
@@ -195,3 +262,5 @@ if __name__ == "__main__":
         
     except Exception as e:
         print(f" Critical save error: {str(e)}")
+
+    
